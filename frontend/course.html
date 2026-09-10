@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Course</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="dashboard">
+
+        <div class="dashboard-header">
+            <div>
+                <h1 id="courseTitle">Course</h1>
+                <p id="courseDescription"></p>
+            </div>
+
+            <button onclick="goBack()">Back to Dashboard</button>
+        </div>
+
+
+        <div class="course-section">
+
+            <h2>Course Enrollment</h2>
+
+            <p id="enrollmentMessage"></p>
+
+            <button id="enrollBtn">
+                Enroll in Course
+            </button>
+
+        </div>
+
+
+        <div class="course-section">
+
+            <h2>Lectures</h2>
+
+            <div class="lecture-layout">
+                <div id="lectureContainer">
+                    <p>Please enroll in the course to view lectures.</p>
+                </div>
+
+                <aside id="videoPanel" class="video-panel" hidden>
+                    <div class="video-panel-header">
+                        <h3 id="videoTitle">Lecture video</h3>
+                        <button id="closeVideoBtn" type="button">Close</button>
+                    </div>
+                    <div class="video-frame-wrapper">
+                        <iframe id="lectureVideo" title="Lecture video"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                    </div>
+                </aside>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="course.js"></script>
+
+</body>
+
+</html>
