@@ -1,7 +1,7 @@
 from sqlalchemy import text
 
 from database import engine, Base
-from models import Student, User , Course , Lecture , Enrollment , LectureProgress , Notification
+from models import User , Course , Lecture , Enrollment , LectureProgress , Notification
 
 Base.metadata.create_all(bind=engine)
 

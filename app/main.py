@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from app.routers.students import router as student_router
 from app.routers.auth import router as auth_router
 from app.routers import courses
 from app.routers import lectures
@@ -17,8 +16,6 @@ app = FastAPI(
 
 app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="frontend")
 
-
-app.include_router(student_router)
 app.include_router(auth_router)
 app.include_router(courses.router)
 app.include_router(lectures.router)

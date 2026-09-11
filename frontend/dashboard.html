@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Student Dashboard</title>
+    <title>LMS Dashboard</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -14,156 +14,122 @@
 
     <div class="dashboard">
 
+        <!-- DASHBOARD HEADER -->
         <div class="dashboard-header">
 
             <div>
-                <h1>Student Management System</h1>
-                <p>Manage your students</p>
+                <h1>Learning Management System</h1>
+
+                <p>
+                    Learn, practice and complete your courses
+                </p>
             </div>
+
 
             <div class="user-info">
-                <p>Welcome, <strong id="usernameDisplay"></strong></p>
-                <p>Role: <strong id="roleDisplay"></strong></p>
+
+                <p>
+                    Welcome,
+                    <strong id="usernameDisplay"></strong>
+                </p>
+
+                <p>
+                    Role:
+                    <strong id="roleDisplay"></strong>
+                </p>
+
             </div>
 
-            <button id="logoutBtn">Logout</button>
+
+            <button id="logoutBtn">
+                Logout
+            </button>
 
         </div>
 
-        <div class="student-section">
+        <!-- ADMIN USER MANAGEMENT -->
+        <div class="course-section" id="userManagementSection" style="display: none;">
 
             <div class="section-header">
-                <h2>Students</h2>
-                <div class="admin-actions">
-                    <button id="addUserBtn" type="button">+ Add User</button>
-                    <button id="addStudentBtn" type="button">+ Add Student</button>
-                </div>
-            </div>
-            <!-- ADD USER FORM -->
-            <div id="userFormContainer" style="display: none;">
-                <form id="userForm">
-                    <input type="text" id="newUsername" placeholder="Username" minlength="3" required>
-                    <input type="password" id="newPassword" placeholder="Temporary password" minlength="6" required>
-                    <button type="submit">Create User</button>
-                    <button type="button" id="cancelUserBtn">Cancel</button>
-                </form>
+                <h2>Manage Users / Students</h2>
             </div>
 
-            <div id="userListContainer" class="user-list-container" style="display: none;">
-                <h3>Users</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Role</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTableBody"></tbody>
-                </table>
+            <h3>Add Student</h3>
+
+            <form id="addUserForm">
+
+                <input type="text" id="newUsername" placeholder="Username" required>
+
+                <input type="password" id="newPassword" placeholder="Password" required>
+
+                <input type="text" id="newName" placeholder="Full Name" required>
+
+                <input type="email" id="newEmail" placeholder="Email" required>
+
+                <input type="number" id="newAge" placeholder="Age" min="0" max="50" required>
+
+                <button type="submit">
+                    Add Student
+                </button>
+
+            </form>
+
+            <p id="addUserMessage"></p>
+
+
+            <h3>Users / Students</h3>
+
+            <div id="userListContainer">
+                <p>Loading users...</p>
             </div>
-            <!-- ADD STUDENT FORM -->
-            <div id="studentFormContainer" style="display: none;">
-                <form id="studentForm">
-                    <input type="text" id="studentName" placeholder="Student Name" required>
-                    <input type="email" id="studentEmail" placeholder="Email" required>
-                    <input type="number" id="studentAge" placeholder="Age" min="1" max="100" required>
-                    <select id="studentCourse" required>
-                        <option value="">Select Course</option>
-                        <option value="Python">Python</option>
-                        <option value="Java">Java</option>
-                        <option value="JavaScript">JavaScript</option>
-                        <option value="C++">C++</option>
-                        <option value="C#">C#</option>
-                        <option value="Web Development">Web Development</option>
-                        <option value="Data Science">Data Science</option>
-                        <option value="AI">Artificial Intelligence</option>
-                    </select>
-
-                    <button type="submit">Add Student</button>
-                    <button type="button" id="cancelBtn">Cancel</button>
-                </form>
-            </div>
-
-
-            <!-- EDIT STUDENT FORM -->
-            <div id="editFormContainer" style="display: none;">
-                <h3>Edit Student</h3>
-
-                <form id="editForm">
-                    <input type="text" id="editName" placeholder="Student Name" required>
-
-                    <input type="email" id="editEmail" placeholder="Email" required>
-
-                    <input type="number" id="editAge" placeholder="Age" min="1" max="100" required>
-
-                    <select id="editCourse" required>
-                        <option value="">Select Course</option>
-                        <option value="Python">Python</option>
-                        <option value="Java">Java</option>
-                        <option value="JavaScript">JavaScript</option>
-                        <option value="C++">C++</option>
-                        <option value="C#">C#</option>
-                        <option value="Web Development">Web Development</option>
-                        <option value="Data Science">Data Science</option>
-                        <option value="AI">Artificial Intelligence</option>
-                    </select>
-
-                    <button type="submit">Update Student</button>
-                    <button type="button" id="cancelEditBtn">Cancel</button>
-                </form>
-            </div>
-
-
-            <!-- SEARCH -->
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search student by name...">
-                <button id="searchBtn">Search</button>
-                <button id="showAllBtn">Show All</button>
-            </div>
-
-            <p id="message"></p>
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Age</th>
-                        <th>Course</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody id="studentTableBody">
-                </tbody>
-
-            </table>
 
         </div>
-        <div class="notification-section" style="display: none;">
-            <div class="section-header">
-                <h2>Notifications</h2>
-            </div>
-            <div id="notificationContainer">
-                <p>No notifications yet.</p>
-            </div>
-        </div>
 
+        <!-- COURSES -->
         <div class="course-section">
 
             <div class="section-header">
+
                 <h2>Available Courses</h2>
+
             </div>
 
+
             <div id="courseContainer" class="course-container">
-                <!-- Courses will be loaded here -->
+
+                <p>
+                    Loading courses...
+                </p>
+
             </div>
 
         </div>
+
+
+        <!-- ADMIN NOTIFICATIONS -->
+        <div class="notification-section" id="notificationSection" style="display: none;">
+
+            <div class="section-header">
+
+                <h2>
+                    Admin Notifications
+                </h2>
+
+            </div>
+
+
+            <div id="notificationContainer">
+
+                <p>
+                    No notifications yet.
+                </p>
+
+            </div>
+
+        </div>
+
     </div>
+
 
     <script src="dashboard.js"></script>
 

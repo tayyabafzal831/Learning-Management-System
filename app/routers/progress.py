@@ -33,7 +33,7 @@ def complete_lecture(
     enrollment = db.query(Enrollment).filter(
         Enrollment.user_id == current_user.id,
         Enrollment.course_id == lecture.course_id,
-        Enrollment.status == "enrolled"
+        Enrollment.status.in_(["enrolled", "completed"])
     ).first()
 
     if not enrollment:
