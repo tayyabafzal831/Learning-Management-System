@@ -18,6 +18,9 @@ const lectureVideo = document.getElementById("lectureVideo");
 const videoTitle = document.getElementById("videoTitle");
 const closeVideoBtn = document.getElementById("closeVideoBtn");
 
+let player = null;
+let currentLectureId = null;
+let youtubeReady = false;
 
 // Load course information
 async function loadCourse() {
@@ -190,9 +193,12 @@ async function loadLectures() {
 
             lectureCard.querySelector(".watch-lecture-btn").addEventListener(
                 "click",
-                () => watchLecture(lecture.video_url, lecture.title)
+                () => watchLecture(
+                    lecture.id,
+                    lecture.video_url,
+                    lecture.title
+                )
             );
-
             lectureContainer.appendChild(lectureCard);
 
         });
@@ -208,34 +214,146 @@ async function loadLectures() {
 
 
 // Show the lecture without leaving the course page.
-function watchLecture(videoUrl, title) {
+function watchLecture(lectureId, videoUrl, title) {
 
-    lectureVideo.src = getEmbedUrl(videoUrl);
+    if (!youtubeReady) {
+        console.log("YouTube API is not ready yet.");
+        return;
+    }
+
+    const videoId = getYouTubeVideoId(videoUrl);
+
+    console.log("Video URL:", videoUrl);
+    console.log("Video ID:", videoId);
+
+    currentLectureId = lectureId;
+
     videoTitle.textContent = title || "Lecture video";
     videoPanel.hidden = false;
+
+    if (!videoId) {
+        console.error("Could not find YouTube video ID.");
+        return;
+    }
+
+    if (player) {
+
+        player.loadVideoById(videoId);
+
+    } else {
+
+        console.log("Creating YouTube player...");
+        console.log("YT.Player type:", typeof YT.Player);
+        const newPlayer = new YT.Player("lectureVideo", {
+
+            videoId: videoId,
+
+            events: {
+                onReady: function (event) {
+                    console.log("YouTube player is ready!");
+                },
+
+                onError: function (event) {
+                    console.log("YouTube player error:", event.data);
+                },
+
+                onStateChange: onPlayerStateChange
+            },
+
+        });
+        console.log("New player object:", newPlayer);
+        console.log("stopVideo type:", typeof newPlayer.stopVideo);
+
+        player = newPlayer;
+
+        console.log("Iframe src:", lectureVideo.src);
+    }
 }
 
+function onPlayerStateChange(event) {
 
-function getEmbedUrl(videoUrl) {
+    if (event.data === YT.PlayerState.ENDED) {
+
+        console.log("Lecture finished!");
+
+        completeLecture(currentLectureId);
+    }
+}
+
+async function completeLecture(lectureId) {
+
+    if (!lectureId) {
+        console.error("Lecture ID is missing.");
+        return;
+    }
 
     try {
+
+        const response = await fetch(
+            `http://127.0.0.1:8000/progress/lecture/${lectureId}/complete`,
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+
+            console.log("Lecture completed:", data);
+
+        } else {
+
+            console.error(
+                "Could not complete lecture:",
+                data
+            );
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Lecture completion error:",
+            error
+        );
+    }
+}
+
+window.onYouTubeIframeAPIReady = function () {
+
+    youtubeReady = true;
+    console.log("YouTube API is ready.");
+};
+
+function getYouTubeVideoId(videoUrl) {
+
+    try {
+
         const url = new URL(videoUrl);
+
         let videoId = url.searchParams.get("v");
 
         if (url.hostname === "youtu.be") {
+
             videoId = url.pathname.slice(1);
+
         } else if (url.pathname.startsWith("/embed/")) {
+
             videoId = url.pathname.split("/")[2];
+
         }
 
-        if (videoId) {
-            return `https://www.youtube.com/embed/${videoId}`;
-        }
+        return videoId;
+
     } catch (error) {
-        console.error("Invalid lecture video URL", error);
-    }
 
-    return videoUrl;
+        console.error("Invalid YouTube URL:", error);
+
+        return null;
+    }
 }
 
 
@@ -247,7 +365,11 @@ function goBack() {
 
 
 closeVideoBtn.addEventListener("click", function () {
-    lectureVideo.src = "";
+
+    if (player) {
+        player.stopVideo();
+    }
+
     videoPanel.hidden = true;
 });
 

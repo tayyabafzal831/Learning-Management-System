@@ -50,10 +50,9 @@ def enroll_in_course(
 
     db.add(enrollment)
     notification = Notification(
-        message=f"You enrolled in course {course.title}",
-        type="enrollment",
-        recipient_user_id=current_user.id
-    )
+    message=f"{current_user.username} enrolled in course {course.title}",
+    type="enrollment"
+)
 
     db.add(notification)
     db.commit()

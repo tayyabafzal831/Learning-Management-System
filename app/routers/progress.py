@@ -96,9 +96,9 @@ def complete_lecture(
 
         # Create admin notification
         notification = Notification(
-            message=f"You completed course {course.title}",
-            type="completion",
-            recipient_user_id=current_user.id
+        message=f"{current_user.name} completed course {course.title}",
+        type="completion",
+        recipient_user_id=1
         )
 
         db.add(notification)
