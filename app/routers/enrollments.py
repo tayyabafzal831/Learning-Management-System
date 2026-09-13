@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Enrollment, Course, Notification
+from models import Enrollment, Course, Notification, User
 from app.dependencies import get_current_user
 
 
@@ -18,6 +18,12 @@ def enroll_in_course(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+    if current_user.role == "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admins cannot enroll in courses"
+        )
+
     # Check if course exists
     course = db.query(Course).filter(
         Course.id == course_id
@@ -49,12 +55,22 @@ def enroll_in_course(
     )
 
     db.add(enrollment)
-    notification = Notification(
-    message=f"{current_user.username} enrolled in course {course.title}",
-    type="enrollment"
-)
 
-    db.add(notification)
+    # Find all admins
+    admins = db.query(User).filter(
+        User.role == "admin"
+    ).all()
+
+    # Create notification for each admin
+    for admin in admins:
+        notification = Notification(
+            message=f"{current_user.username} enrolled in course {course.title}",
+            type="enrollment",
+            recipient_user_id=admin.id
+        )
+
+        db.add(notification)
+
     db.commit()
     db.refresh(enrollment)
 

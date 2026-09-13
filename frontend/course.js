@@ -22,6 +22,33 @@ let player = null;
 let currentLectureId = null;
 let youtubeReady = false;
 
+// Course pages are for students only.
+async function ensureStudentAccess() {
+    const response = await fetch(
+        "http://127.0.0.1:8000/auth/me",
+        {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        }
+    );
+
+    if (!response.ok) {
+        localStorage.removeItem("access_token");
+        window.location.href = "index.html";
+        return false;
+    }
+
+    const user = await response.json();
+
+    if (user.role === "admin") {
+        window.location.href = "dashboard.html";
+        return false;
+    }
+
+    return true;
+}
+
 // Load course information
 async function loadCourse() {
 
@@ -375,5 +402,11 @@ closeVideoBtn.addEventListener("click", function () {
 
 
 // Start page
-loadCourse();
-checkEnrollment();
+async function startCourse() {
+    if (await ensureStudentAccess()) {
+        await loadCourse();
+        await checkEnrollment();
+    }
+}
+
+startCourse();

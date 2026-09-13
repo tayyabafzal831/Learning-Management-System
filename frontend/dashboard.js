@@ -171,17 +171,23 @@ async function loadCourses() {
             card.className = "course-card";
 
 
+            const courseAction = currentUser.role === "admin"
+                ? "<p>Admins do not enroll in courses or view lectures.</p>"
+                : `
+                    <button
+                        type="button"
+                        onclick="viewCourse(${course.id})"
+                    >
+                        View Course
+                    </button>
+                `;
+
             card.innerHTML = `
                 <h3>${course.title}</h3>
 
                 <p>${course.description}</p>
 
-                <button
-                    type="button"
-                    onclick="viewCourse(${course.id})"
-                >
-                    View Course
-                </button>
+                ${courseAction}
             `;
 
 
@@ -338,21 +344,27 @@ async function addUser(event) {
 
     event.preventDefault();
 
-    const username =
-        document.getElementById("newUsername").value.trim();
+    const formData = new FormData(addUserForm);
+    const getField = name => String(formData.get(name) || "").trim();
+    const userData = {
+        username: getField("username"),
+        password: String(formData.get("password") || ""),
+        name: getField("name"),
+        email: getField("email"),
+        age: Number(getField("age")),
+        role: getField("role")
+    };
 
-    const password =
-        document.getElementById("newPassword").value;
+    const missingFields = Object.entries(userData)
+        .filter(([field, value]) => !value || (field === "age" && Number.isNaN(value)))
+        .map(([field]) => field);
 
-    const name =
-        document.getElementById("newName").value.trim();
-
-    const email =
-        document.getElementById("newEmail").value.trim();
-
-    const age =
-        Number(document.getElementById("newAge").value);
-
+    if (missingFields.length > 0) {
+        addUserMessage.textContent =
+            `Please complete: ${missingFields.join(", ")}`;
+        addUserMessage.style.color = "red";
+        return;
+    }
 
     try {
 
@@ -366,13 +378,7 @@ async function addUser(event) {
                     "Authorization": `Bearer ${token}`
                 },
 
-                body: JSON.stringify({
-                    username: username,
-                    password: password,
-                    name: name,
-                    email: email,
-                    age: age
-                })
+                body: JSON.stringify(userData)
             }
         );
 
@@ -383,7 +389,7 @@ async function addUser(event) {
         if (response.ok) {
 
             addUserMessage.textContent =
-                "Student added successfully!";
+                "User added successfully!";
 
             addUserMessage.style.color = "green";
 
@@ -395,13 +401,13 @@ async function addUser(event) {
 
                 addUserMessage.textContent =
                     data.detail
-                        .map(error => error.msg)
+                        .map(error => `${error.loc?.at(-1) || "Field"}: ${error.msg}`)
                         .join(", ");
 
             } else {
 
                 addUserMessage.textContent =
-                    data.detail || "Could not add student.";
+                    data.detail || "Could not add user.";
             }
 
             addUserMessage.style.color = "red";

@@ -17,64 +17,17 @@ router = APIRouter(
 )
 
 
-@router.post("/register")
-def register(
-    user_data: UserCreate,
-    db: Session = Depends(get_db)
-):
-    existing_user = db.query(User).filter(
-        User.username == user_data.username
-    ).first()
-
-    if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail="Username already exists"
-        )
-
-    existing_email = db.query(User).filter(
-        User.email == user_data.email
-    ).first()
-
-    if existing_email:
-        raise HTTPException(
-            status_code=400,
-            detail="Email already exists"
-        )
-
-    hashed_password = bcrypt.hashpw(
-        user_data.password.encode("utf-8"),
-        bcrypt.gensalt()
-    ).decode("utf-8")
-
-    new_user = User(
-        username=user_data.username,
-        password=hashed_password,
-        role="user",
-        name=user_data.name,
-        email=user_data.email,
-        age=user_data.age
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return {
-        "message": "User registered successfully",
-        "username": new_user.username,
-        "name": new_user.name,
-        "email": new_user.email,
-        "age": new_user.age
-    }
-
-
 @router.post("/users")
 def create_user(
     user_data: UserCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
+    if user_data.role not in ["user", "student"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Role must be either user or student"
+        )
     existing_user = db.query(User).filter(
         User.username == user_data.username
     ).first()
@@ -103,7 +56,7 @@ def create_user(
     new_user = User(
         username=user_data.username,
         password=hashed_password,
-        role="user",
+        role=user_data.role,
         name=user_data.name,
         email=user_data.email,
         age=user_data.age

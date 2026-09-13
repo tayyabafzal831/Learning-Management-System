@@ -17,8 +17,10 @@ def get_notifications(
     db: Session = Depends(get_db),
     current_user=Depends(require_admin)
 ):
-    notifications = db.query(Notification).order_by(
+    notifications = db.query(Notification).filter(
+        Notification.recipient_user_id == current_user.id
+    ).order_by(
         Notification.id.desc()
     ).all()
 
-    return notifications
+    return notifications 

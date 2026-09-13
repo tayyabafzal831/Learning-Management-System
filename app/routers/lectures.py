@@ -18,6 +18,11 @@ def get_course_lectures(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+    if current_user.role == "admin":
+        raise HTTPException(
+        status_code=403,
+        detail="Admin cannot watch lectures"
+    )
     # Check if the user is enrolled
     enrollment = db.query(Enrollment).filter(
         Enrollment.user_id == current_user.id,
@@ -46,6 +51,12 @@ def get_lecture(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+    if current_user.role == "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin cannot watch lectures"
+        )
+
     lecture = db.query(Lecture).filter(
         Lecture.id == lecture_id
     ).first()

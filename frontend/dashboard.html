@@ -54,21 +54,26 @@
                 <h2>Manage Users / Students</h2>
             </div>
 
-            <h3>Add Student</h3>
+            <h3>Add User/Student</h3>
 
             <form id="addUserForm">
 
-                <input type="text" id="newUsername" placeholder="Username" required>
+                <input type="text" id="newUsername" name="username" placeholder="Username" required>
 
-                <input type="password" id="newPassword" placeholder="Password" required>
+                <input type="password" id="newPassword" name="password" placeholder="Password" required>
 
-                <input type="text" id="newName" placeholder="Full Name" required>
+                <input type="text" id="newName" name="name" placeholder="Full Name" required>
 
-                <input type="email" id="newEmail" placeholder="Email" required>
+                <input type="email" id="newEmail" name="email" placeholder="Email" required>
 
-                <input type="number" id="newAge" placeholder="Age" min="0" max="50" required>
+                <input type="number" id="newAge" name="age" placeholder="Age" min="1" max="100" required>
+                <select id="newRole" name="role" required>
+                    <option value="">Select user type</option>
+                    <option value="user">User</option>
+                    <option value="student">Student</option>
+                </select>
                 <button type="submit">
-                    Add Student
+                    Add User/Student
                 </button>
 
             </form>
@@ -130,7 +135,7 @@
     </div>
 
 
-    <script src="dashboard.js"></script>
+    <script src="dashboard.js?v=2"></script>
 
 </body>
 

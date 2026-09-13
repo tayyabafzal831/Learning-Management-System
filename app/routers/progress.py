@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Lecture, Enrollment, LectureProgress, Course, Notification
+from models import Lecture, Enrollment, LectureProgress, Course, Notification, User
 from app.dependencies import get_current_user
 
 
@@ -18,6 +18,12 @@ def complete_lecture(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+    if current_user.role == "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin cannot complete lectures"
+        )
+
     # Find lecture
     lecture = db.query(Lecture).filter(
         Lecture.id == lecture_id
@@ -94,14 +100,20 @@ def complete_lecture(
         # Mark enrollment as completed
         enrollment.status = "completed"
 
-        # Create admin notification
-        notification = Notification(
-        message=f"{current_user.name} completed course {course.title}",
-        type="completion",
-        recipient_user_id=1
-        )
+        # Find all admins
+        admins = db.query(User).filter(
+            User.role == "admin"
+        ).all()
 
-        db.add(notification)
+        # Create completion notification for each admin
+        for admin in admins:
+            notification = Notification(
+                message=f"{current_user.name} completed course {course.title}",
+                type="completion",
+                recipient_user_id=admin.id
+            )
+
+            db.add(notification)
 
         course_completed = True
 
@@ -120,6 +132,12 @@ def get_course_progress(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+    if current_user.role == "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin cannot view course progress"
+        )
+
     enrollment = db.query(Enrollment).filter(
         Enrollment.user_id == current_user.id,
         Enrollment.course_id == course_id,
