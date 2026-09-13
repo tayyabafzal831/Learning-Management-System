@@ -85,7 +85,10 @@ async function getCurrentUser() {
 
         currentUser = await response.json();
 
-
+        if (currentUser.role === "admin") {
+            //console.log(currentUser.role);
+            document.getElementsByClassName("course-section")[1].style.display = "none";
+        }
         // Show username
         usernameDisplay.textContent =
             currentUser.username;
@@ -354,6 +357,8 @@ async function addUser(event) {
         age: Number(getField("age")),
         role: getField("role")
     };
+
+
 
     const missingFields = Object.entries(userData)
         .filter(([field, value]) => !value || (field === "age" && Number.isNaN(value)))
